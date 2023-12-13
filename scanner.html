@@ -1,63 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barcode Scanner</title>
-  <style>
-    video {
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      display: block;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <h1>Barcode Scanner</h1>
-  <video id="scanner" muted></video>
-  <script src="https://cdn.rawgit.com/serratus/quaggaJS/master/dist/quagga.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'environment' // Use the rear camera
-          }
-        })
-          .then(function(stream) {
-            var video = document.getElementById('scanner');
-            video.srcObject = stream;
-            video.play();
+    <h1>Barcode Scanner</h1>
+    <video id="scanner" muted></video>
+
+    <script src="https://cdn.rawgit.com/serratus/quaggaJS/master/dist/quagga.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             Quagga.init({
-              inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: video
-              },
-              decoder: {
-                readers: ["ean_reader"]
-              }
-            }, function(err) {
-              if (err) {
-                console.error(err);
-                return;
-              }
-              Quagga.start();
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#scanner'), // Video element
+                    constraints: {
+                        width: 640,
+                        height: 480,
+                        facingMode: 'environment' // or 'user' for front camera
+                    },
+                },
+                decoder: {
+                    readers: ['code_128_reader'] // Use 'code_128_reader' for Code 128
+                },
+                locator: {
+                    patchSize: 'medium',
+                    halfSample: true
+                },
+                numOfWorkers: 4,
+                locate: true,
+                multiple: false,
+                debug: {
+                    showCanvas: true,
+                    showPatches: true,
+                    showFoundPatches: true,
+                    showSkeleton: true,
+                    showLabels: true,
+                    showPatchLabels: true,
+                    showRemainingPatchLabels: true,
+                    boxFromPatches: {
+                        showTransformed: true,
+                        showTransformedBox: true,
+                        showBB: true
+                    }
+                }
+            }, function (err) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                console.log('Initialization finished. Ready to start');
+                Quagga.start();
             });
 
-            Quagga.onDetected(function(result) {
-              alert('Barcode detected: ' + result.codeResult.code);
-              Quagga.stop();
+            Quagga.onDetected(function (result) {
+                console.log('Barcode detected:', result.codeResult.code);
+                Quagga.stop();
             });
-          })
-          .catch(function(err) {
-            console.error("Error accessing the camera: ", err);
-          });
-      } else {
-        alert("Sorry, your browser doesn't support the necessary features.");
-      }
-    });
-  </script>
+        });
+    </script>
 </body>
 </html>
