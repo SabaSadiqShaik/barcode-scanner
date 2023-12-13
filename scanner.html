@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcode Scanner</title>
+  <style>
+    video {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Barcode Scanner</h1>
+  <video id="scanner" muted></video>
+  <script src="https://cdn.rawgit.com/serratus/quaggaJS/master/dist/quagga.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function(stream) {
+            var video = document.getElementById('scanner');
+            video.srcObject = stream;
+            video.play();
+            Quagga.init({
+              inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: video
+              },
+              decoder: {
+                readers: ["ean_reader"]
+              }
+            }, function(err) {
+              if (err) {
+                console.error(err);
+                return;
+              }
+              Quagga.start();
+            });
+
+            Quagga.onDetected(function(result) {
+              alert('Barcode detected: ' + result.codeResult.code);
+              Quagga.stop();
+            });
+          })
+          .catch(function(err) {
+            console.error("Error accessing the camera: ", err);
+          });
+      } else {
+        alert("Sorry, your browser doesn't support the necessary features.");
+      }
+    });
+  </script>
+</body>
+</html>
