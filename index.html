@@ -1,59 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barcode Scanner</title>
-  <style>
-    video {
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      display: block;
-    }
-  </style>
-</head>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Dynamsoft JavaScript Barcode Scanner</title>
+        <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.0.0/dist/dbr.js"></script>
+    </head>
 <body>
-  <h1>Barcode Scanner</h1>
-  <video id="scanner" muted></video>
-  <script src="https://cdn.rawgit.com/serratus/quaggaJS/master/dist/quagga.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-          .then(function(stream) {
-            var video = document.getElementById('scanner');
-            video.srcObject = stream;
-            video.play();
-            Quagga.init({
-              inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: video
-              },
-              decoder: {
-                readers: ["code_128_reader"] // Change to code_128_reader for Code 128
-              }
-            }, function(err) {
-              if (err) {
-                console.error(err);
-                return;
-              }
-              Quagga.start();
-            });
-
-            Quagga.onDetected(function(result) {
-              alert('Barcode detected: ' + result.codeResult.code);
-              Quagga.stop();
-            });
-          })
-          .catch(function(err) {
-            console.error("Error accessing the camera: ", err);
-          });
-      } else {
-        alert("Sorry, your browser doesn't support the necessary features.");
-      }
-    });
-  </script>
+    <script>
+        Dynamsoft.DBR.BarcodeReader.license = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==";
+        let scanner = null;
+        (async()=>{
+            scanner = await Dynamsoft.DBR.BarcodeScanner.createInstance();
+            scanner.onFrameRead = results => {console.log(results);};
+            scanner.onUnduplicatedRead = (txt, result) => {};
+            await scanner.show();
+        })();
+    </script>
 </body>
 </html>
